@@ -1,0 +1,62 @@
+diff --git a/SConstruct b/SConstruct
+index 2a5c8d5464..22a26451e4 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -187,6 +187,7 @@ opts.Add(BoolVariable("builtin_squish", "Use the built-in squish library", True)
+ opts.Add(BoolVariable("builtin_xatlas", "Use the built-in xatlas library", True))
+ opts.Add(BoolVariable("builtin_zlib", "Use the built-in zlib library", True))
+ opts.Add(BoolVariable("builtin_zstd", "Use the built-in Zstd library", True))
++opts.Add(BoolVariable("builtin_gltf", "Use the built-in GLTF library", True))
+ 
+ # Compilation environment setup
+ opts.Add("CXX", "C++ compiler")
+diff --git a/modules/gltf/config.py b/modules/gltf/config.py
+index a4ee871eff..2d7cf223da 100644
+--- a/modules/gltf/config.py
++++ b/modules/gltf/config.py
+@@ -1,5 +1,5 @@
+ def can_build(env, platform):
+-    return env["tools"] and not env["disable_3d"]
++    return env["builtin_gltf"] or (env["tools"] and not env["disable_3d"])
+ 
+ 
+ def configure(env):
+diff --git a/modules/gltf/packed_scene_gltf.cpp b/modules/gltf/packed_scene_gltf.cpp
+index 409d938831..0fbbfc8328 100644
+--- a/modules/gltf/packed_scene_gltf.cpp
++++ b/modules/gltf/packed_scene_gltf.cpp
+@@ -28,8 +28,6 @@
+ /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
+ /*************************************************************************/
+ 
+-#ifdef TOOLS_ENABLED
+-
+ #include "packed_scene_gltf.h"
+ 
+ #include "editor/import/resource_importer_scene.h"
+@@ -155,5 +153,3 @@ Error PackedSceneGLTF::export_gltf(Node *p_root, String p_path,
+ 	}
+ 	return OK;
+ }
+-
+-#endif // TOOLS_ENABLED
+diff --git a/modules/gltf/packed_scene_gltf.h b/modules/gltf/packed_scene_gltf.h
+index 2182264f3f..f8c0833bca 100644
+--- a/modules/gltf/packed_scene_gltf.h
++++ b/modules/gltf/packed_scene_gltf.h
+@@ -31,8 +31,6 @@
+ #ifndef PACKED_SCENE_GLTF_H
+ #define PACKED_SCENE_GLTF_H
+ 
+-#ifdef TOOLS_ENABLED
+-
+ #include "scene/main/node.h"
+ #include "scene/resources/packed_scene.h"
+ 
+@@ -61,6 +59,4 @@ public:
+ 			real_t p_bake_fps = 1000.0f, uint32_t p_compress_flags = Mesh::ARRAY_COMPRESS_DEFAULT, Ref<GLTFState> r_state = Ref<GLTFState>());
+ };
+ 
+-#endif // TOOLS_ENABLED
+-
+ #endif // PACKED_SCENE_GLTF_H
